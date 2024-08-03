@@ -1,7 +1,8 @@
 import * as THREE from 'three';
 import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
 import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
-import jquery from 'https://cdn.skypack.dev/jquery';
+import {Tween, Easing, Group} from '@tweenjs/tween.js';
+import jquery from 'jquery';
 
 // Imports jquery
 const $ = jquery;
@@ -45,8 +46,8 @@ function createTable(database) {
         // noinspection HtmlUnknownAttribute
         $('#dpp-ctx div.container').append(`
             <div class="dpp" dpp-id="${obj.id}">
-                <div class="title">${obj.label}</div>
-                <div class="material">${obj.material}</div>
+                <div class="title">${obj.material}</div>
+                <div class="material">${obj.label}</div>
                 ${make_property('Condition', `${obj.condition}%`)}
                 ${make_property('Reusability', `${obj.reusability}%`)}
                 ${make_property('Dimensions', `${obj.dimensions} m`)}
@@ -97,10 +98,15 @@ function initViewer(database) {
 
     // Create camera
     const camera = new THREE.PerspectiveCamera(70, 1, 0.01, 100);
-    camera.position.z = 1;
+    camera.position.x = -1;
+    camera.position.y = -2;
+    camera.position.z = 0.5;
 
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
+
+    // Tween groups
+    const tween_group = new Group();
 
     // Load GLTF model
     const loader = new GLTFLoader();
@@ -126,15 +132,29 @@ function initViewer(database) {
             let cameraZ = Math.abs(maxDim / 4 * Math.tan(fov * 2));
 
             cameraZ *= 3; // Zoom out a little so that the model is fully visible
-
-            camera.position.z = center.z + 1.25 * cameraZ;
-            camera.position.y = center.y + 0.5 * cameraZ;
-            camera.position.x = center.x + -cameraZ;
             camera.lookAt(center);
 
             controls.target = center;
+            controls.target.x -= 0.5 * cameraZ;
             controls.update();
             scene.add(gltf.scene);
+
+            // Animate camera
+            setTimeout(() => {
+                let from_position = camera.position.clone();
+                let to_position = new THREE.Vector3();
+                to_position.z = center.z + 1.25 * cameraZ;
+                to_position.y = center.y + 0.5 * cameraZ;
+                to_position.x = center.x + -cameraZ;
+                const tween = new Tween(from_position)
+                    .to(to_position, 1250)
+                    .easing(Easing.Quadratic.InOut)
+                    .onUpdate(() => {
+                        camera.position.set(from_position.x, from_position.y, from_position.z);
+                    })
+                    .start();
+                tween_group.add(tween);
+            }, 250);
         },
         undefined,
         function (error) {
@@ -156,9 +176,10 @@ function initViewer(database) {
     renderer.setAnimationLoop(animate);
     document.body.appendChild(renderer.domElement);
 
-    function animate() {
+    function animate(time) {
         controls.update();
         renderer.render(scene, camera);
+        tween_group.update(time);
     }
 
     // Creates the table
