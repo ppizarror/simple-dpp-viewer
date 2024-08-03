@@ -29,7 +29,7 @@ function DPP(id, material, label, condition, reusability, dimensions) {
     this.label = label;
     this.condition = condition;
     this.reusability = reusability;
-    this.dimensions = dimensions;
+    this.dimensions = dimensions.replaceAll('x', '×');
     /** @type {THREE.MeshStandardMaterial} */ this.viewerMaterial = null;
 
     this.bindMaterial = function (material) {
