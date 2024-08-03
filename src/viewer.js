@@ -42,15 +42,30 @@ function createTable(database) {
             <div class="value">${property_value}</div>
         </div>
     `;
+    const make_property_range = (property_label, property_percentage) => {
+        const range_red = Math.round(255 * (100 - property_percentage) / 100);
+        const range_green = Math.round(255 * property_percentage / 100);
+        return make_property(
+            property_label,
+            `
+                <div class="range-container">
+                    <div class="marker" style="
+                        border-color: rgb(${range_red}, ${range_green}, 0);
+                        left: calc(${property_percentage}% - 1px);
+                    "></div>
+                </div>
+                `
+        );
+    };
     database.objects.forEach((obj) => {
         // noinspection HtmlUnknownAttribute
         $('#dpp-ctx div.container').append(`
             <div class="dpp" dpp-id="${obj.id}">
                 <div class="title">${obj.material}</div>
                 <div class="material">${obj.label}</div>
-                ${make_property('Condition', `${obj.condition}%`)}
-                ${make_property('Reusability', `${obj.reusability}%`)}
-                ${make_property('Dimensions', `${obj.dimensions} m`)}
+                ${make_property_range('Condition', obj.condition)}
+                ${make_property_range('Reusability', obj.reusability)}
+                ${make_property('Dimensions (m)', `${obj.dimensions} m`)}
             </div>
         `);
     });
@@ -85,14 +100,14 @@ function initViewer(database) {
     const scene = new THREE.Scene();
 
     // Add lighting
-    const ambientLight = new THREE.AmbientLight(0xffffff, 3); // Soft white light
+    const ambientLight = new THREE.AmbientLight(0xffffff, 10); // Soft white light
     scene.add(ambientLight);
 
     const directionalLight = new THREE.DirectionalLight(0xffffff, 2);
     directionalLight.position.set(5, 10, 7.5);
     scene.add(directionalLight);
 
-    const pointLight = new THREE.PointLight(0xffffff, 1, 100);
+    const pointLight = new THREE.PointLight(0xffffff, 100, 100);
     pointLight.position.set(10, 10, 10);
     scene.add(pointLight);
 
@@ -131,7 +146,7 @@ function initViewer(database) {
             const fov = camera.fov * (Math.PI / 180);
             let cameraZ = Math.abs(maxDim / 4 * Math.tan(fov * 2));
 
-            cameraZ *= 3; // Zoom out a little so that the model is fully visible
+            cameraZ *= 2; // Zoom out a little so that the model is fully visible
             camera.lookAt(center);
 
             controls.target = center;
