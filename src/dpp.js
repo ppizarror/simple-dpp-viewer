@@ -30,13 +30,13 @@ function DPP(id, material, label, condition, reusability, dimensions) {
     this.condition = condition;
     this.reusability = reusability;
     this.dimensions = dimensions;
-    /** @type {THREE.MeshStandardMaterial} */ this.viewerTextObj = null;
+    /** @type {THREE.MeshStandardMaterial} */ this.viewerMaterial = null;
 
     this.bindMaterial = function (material) {
-        self.viewerTextObj = material;
-        self.viewerTextObj.color = new THREE.Color(0xffffff);
-        self.viewerTextObj.emissive = new THREE.Color(0xff0000); // Set emissive color
-        self.viewerTextObj.emissiveIntensity = 0;
+        self.viewerMaterial = material;
+        self.viewerMaterial.color = new THREE.Color(0xffffff);
+        self.viewerMaterial.emissive = new THREE.Color(0xff0000); // Set emissive color
+        self.viewerMaterial.emissiveIntensity = 0;
     };
 }
 
@@ -53,12 +53,23 @@ function DataBase(objects, model_name, model_path) {
     this.model_name = model_name;
     this.model_path = model_path;
 
-    /** @param {THREE.MeshStandardMaterial} texture */
-    this.bindMaterial = function (texture) {
-        const texture_id = md5Hash(texture['name']);
-        self.objects.forEach((obj) => {
-            if (obj.id === texture_id) obj.bindMaterial(texture);
-        });
+    /** @param {THREE.MeshStandardMaterial} material */
+    this.bindMaterial = function (material) {
+        const texture_id = md5Hash(material['name']);
+        for (let i = 0; i < self.objects.length; i++) {
+            if (self.objects[i].id === texture_id) {
+                self.objects[i].bindMaterial(material);
+                break;
+            }
+        }
+    };
+
+    // Retrieves an object from its ID
+    this.getObject = function (id) {
+        for (let i = 0; i < self.objects.length; i++) {
+            if (self.objects[i].id === id) return self.objects[i];
+        }
+        return null;
     };
 
     // Initializes the viewer
