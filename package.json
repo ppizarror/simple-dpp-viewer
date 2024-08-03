@@ -1,0 +1,10 @@
+{
+  "name": "simple-dpp-viewer",
+  "version": "1.0.0",
+  "description": "DPP viewer",
+  "author": "ppizarror",
+  "license": "MIT",
+  "dependencies": {
+    "three": "^0.167.1"
+  }
+}
