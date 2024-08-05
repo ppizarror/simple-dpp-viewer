@@ -1,11 +1,11 @@
+/**
+ * Defines the viewer of a given DPP database.
+ */
+
 import * as THREE from 'three';
 import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
 import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
 import {Tween, Easing, Group} from '@tweenjs/tween.js';
-import jquery from 'jquery';
-
-// Imports jquery
-const $ = jquery;
 
 // Utils: Scale the model to a factor of 1
 function model_scale(model) {
@@ -28,7 +28,7 @@ function model_scale(model) {
  * @param {DataBase} database
  */
 function createTable(database) {
-    $('body').prepend(`
+    document.body.insertAdjacentHTML('afterbegin', `
         <div id="dpp-ctx">
             <div class="container"></div>
             <div class="author">Author: 
@@ -63,7 +63,7 @@ function createTable(database) {
     };
     database.objects.forEach((obj) => {
         // noinspection HtmlUnknownAttribute
-        $('#dpp-ctx div.container').append(`
+        document.querySelector('#dpp-ctx div.container').insertAdjacentHTML('beforeend', `
             <div class="dpp" dpp-id="${obj.id}">
                 <div class="title">${obj.material}</div>
                 <div class="material">${obj.label}</div>
@@ -76,16 +76,16 @@ function createTable(database) {
 
     // Create hover property for dpp
     /** @type {THREE.MeshStandardMaterial} */ let current_hovered = null;
-    $('#dpp-ctx div.container div.dpp').each(function () {
-        const dpp = $(this);
-        dpp.on('mouseenter', () => {
-            const dpp_material = database.getObject(dpp.attr('dpp-id')).viewerMaterial;
-            if (dpp_material === current_hovered) return;
+    document.querySelectorAll('#dpp-ctx div.container div.dpp').forEach((dpp) => {
+        dpp.addEventListener('mouseenter', () => {
+            const dppId = dpp.getAttribute('dpp-id');
+            const dppMaterial = database.getObject(dppId).viewerMaterial;
+            if (dppMaterial === current_hovered) return;
             if (current_hovered) current_hovered.emissiveIntensity = 0;
-            current_hovered = dpp_material;
+            current_hovered = dppMaterial;
             current_hovered.emissiveIntensity = 0.4;
         });
-        dpp.on('mouseleave', () => {
+        dpp.addEventListener('mouseleave', () => {
             if (!current_hovered) return; // Reinitialize material
             current_hovered.emissiveIntensity = 0;
             current_hovered = null;
