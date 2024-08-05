@@ -83,7 +83,7 @@ function createTable(database) {
             if (dppMaterial === current_hovered) return;
             if (current_hovered) current_hovered.emissiveIntensity = 0;
             current_hovered = dppMaterial;
-            current_hovered.emissiveIntensity = 0.4;
+            current_hovered.emissiveIntensity = 0.5;
         });
         dpp.addEventListener('mouseleave', () => {
             if (!current_hovered) return; // Reinitialize material
