@@ -117,9 +117,9 @@ function initViewer(database) {
 
     // Create camera
     const camera = new THREE.PerspectiveCamera(70, 1, 0.01, 100);
-    camera.position.x = -1;
-    camera.position.y = -2;
-    camera.position.z = 0.5;
+    camera.position.x = -3;
+    camera.position.y = -1;
+    camera.position.z = 1;
 
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
